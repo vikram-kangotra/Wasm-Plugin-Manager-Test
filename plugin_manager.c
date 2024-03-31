@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <wasmer.h>
 
+void log_wasmer_last_error() {
+    int error_len = wasmer_last_error_length();
+    char error_buf[error_len];
+    wasmer_last_error_message(error_buf, error_len);
+    fprintf(stderr, "%s\n", error_buf);
+}
+
 wasm_byte_vec_t read_wasm_file(const char* filename) {
     FILE* file = fopen(filename, "rb");
     if (file == NULL) {
@@ -28,6 +35,7 @@ int add(wasm_extern_vec_t* exports, int a, int b) {
 
     if (add_func == NULL) {
         fprintf(stderr, "Failed to find function!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -38,6 +46,7 @@ int add(wasm_extern_vec_t* exports, int a, int b) {
 
     if (wasm_func_call(add_func, &args, &results)) {
         fprintf(stderr, "Call failed!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -50,6 +59,7 @@ int activate(wasm_extern_vec_t* exports) {
 
     if (activate_func == NULL) {
         fprintf(stderr, "Failed to find function!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -59,6 +69,7 @@ int activate(wasm_extern_vec_t* exports) {
 
     if (wasm_func_call(activate_func, &args, &results)) {
         fprintf(stderr, "Call failed!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -71,6 +82,7 @@ int deactivate(wasm_extern_vec_t* exports) {
 
     if (deactivate_func == NULL) {
         fprintf(stderr, "Failed to find function!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -80,6 +92,7 @@ int deactivate(wasm_extern_vec_t* exports) {
 
     if (wasm_func_call(deactivate_func, &args, &results)) {
         fprintf(stderr, "Call failed!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -102,6 +115,7 @@ int main() {
 
     if (module == NULL) {
         printf("Failed to compile module!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
@@ -111,6 +125,7 @@ int main() {
 
     if (instance == NULL) {
         printf("Failed to instantiate module!\n");
+        log_wasmer_last_error();
         return 1;
     }
 
