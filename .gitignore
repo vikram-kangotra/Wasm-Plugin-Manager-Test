@@ -1,3 +1,6 @@
+plugins
 plugin.wasm
 plugin.wat
+plugin_rs.wasm
+plugin_rs.wat
 plugin_manager

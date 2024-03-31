@@ -92,7 +92,7 @@ int main() {
     wasm_store_t* store = wasm_store_new(engine);
 
     // Can use WAT or WASM format.
-    wasm_byte_vec_t wat = read_wasm_file("plugin.wasm");
+    wasm_byte_vec_t wat = read_wasm_file("plugin_rs.wasm");
     wasm_byte_vec_t wasm;
 
     // Parses in-memory bytes as either the WAT format, or a binary Wasm module. This is wasmer-specific.
