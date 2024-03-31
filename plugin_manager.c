@@ -5,7 +5,7 @@
 wasm_byte_vec_t read_wasm_file(const char* filename) {
     FILE* file = fopen(filename, "rb");
     if (file == NULL) {
-        fprintf(stderr, "failed to open file\n");
+        fprintf(stderr, "failed to open file: %s\n", filename);
         exit(1);
     }
     fseek(file, 0, SEEK_END);
@@ -92,7 +92,7 @@ int main() {
     wasm_store_t* store = wasm_store_new(engine);
 
     // Can use WAT or WASM format.
-    wasm_byte_vec_t wat = read_wasm_file("plugin_rs.wasm");
+    wasm_byte_vec_t wat = read_wasm_file("plugins/plugin_rs.wasm");
     wasm_byte_vec_t wasm;
 
     // Parses in-memory bytes as either the WAT format, or a binary Wasm module. This is wasmer-specific.
