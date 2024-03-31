@@ -2,12 +2,12 @@ EMCC = emcc
 CC = gcc
 LIBS = -lwasmer
 
-plugin_manager: plugin_manager.c add.wasm
+plugin_manager: plugin_manager.c plugin.wasm
 	$(CC) $< -o $@ $(LIBS)	
 
-add.wasm: add.c
+plugin.wasm: plugin.c
 	$(EMCC) $< -o $@ -s SIDE_MODULE=1 -O3
-	wasm2wat $@ -o add.wat
+	wasm2wat $@ -o plugin.wat
 
 clean:
-	rm add.wasm add.wat plugin_manager
+	rm plugin.wasm plugin.wat plugin_manager

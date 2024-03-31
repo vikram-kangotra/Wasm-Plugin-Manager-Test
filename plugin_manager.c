@@ -22,13 +22,77 @@ wasm_byte_vec_t read_wasm_file(const char* filename) {
     return wasm;
 }
 
+int add(wasm_extern_vec_t* exports, int a, int b) {
+
+    wasm_func_t* add_func = wasm_extern_as_func(exports->data[1]);
+
+    if (add_func == NULL) {
+        fprintf(stderr, "Failed to find function!\n");
+        return 1;
+    }
+
+    wasm_val_t args_val[2] = { WASM_I32_VAL(a), WASM_I32_VAL(b) };
+    wasm_val_t results_val[1] = { WASM_INIT_VAL };
+    wasm_val_vec_t args = WASM_ARRAY_VEC(args_val);
+    wasm_val_vec_t results = WASM_ARRAY_VEC(results_val);
+
+    if (wasm_func_call(add_func, &args, &results)) {
+        fprintf(stderr, "Call failed!\n");
+        return 1;
+    }
+
+    return results_val[0].of.i32;
+}
+
+int activate(wasm_extern_vec_t* exports) {
+
+    wasm_func_t* activate_func = wasm_extern_as_func(exports->data[2]);
+
+    if (activate_func == NULL) {
+        fprintf(stderr, "Failed to find function!\n");
+        return 1;
+    }
+
+    wasm_val_t results_val[1] = { WASM_INIT_VAL };
+    wasm_val_vec_t args = WASM_EMPTY_VEC;
+    wasm_val_vec_t results = WASM_ARRAY_VEC(results_val);
+
+    if (wasm_func_call(activate_func, &args, &results)) {
+        fprintf(stderr, "Call failed!\n");
+        return 1;
+    }
+
+    return results_val[0].of.i32;
+}
+
+int deactivate(wasm_extern_vec_t* exports) {
+
+    wasm_func_t* deactivate_func = wasm_extern_as_func(exports->data[3]);
+
+    if (deactivate_func == NULL) {
+        fprintf(stderr, "Failed to find function!\n");
+        return 1;
+    }
+
+    wasm_val_t results_val[1] = { WASM_INIT_VAL };
+    wasm_val_vec_t args = WASM_EMPTY_VEC;
+    wasm_val_vec_t results = WASM_ARRAY_VEC(results_val);
+
+    if (wasm_func_call(deactivate_func, &args, &results)) {
+        fprintf(stderr, "Call failed!\n");
+        return 1;
+    }
+
+    return results_val[0].of.i32;
+}
+
 int main() {
 
     wasm_engine_t* engine = wasm_engine_new();
     wasm_store_t* store = wasm_store_new(engine);
 
     // Can use WAT or WASM format.
-    wasm_byte_vec_t wat = read_wasm_file("add.wasm");
+    wasm_byte_vec_t wat = read_wasm_file("plugin.wasm");
     wasm_byte_vec_t wasm;
 
     // Parses in-memory bytes as either the WAT format, or a binary Wasm module. This is wasmer-specific.
@@ -53,24 +117,14 @@ int main() {
     wasm_extern_vec_t exports;
     wasm_instance_exports(instance, &exports);
     
-    wasm_func_t* add_func = wasm_extern_as_func(exports.data[1]);
+    int result = add(&exports, 20, 22);
+    printf("Result: %d\n", result);
 
-    if (add_func == NULL) {
-        printf("Failed to find function!\n");
-        return 1;
-    }
+    result = activate(&exports);
+    printf("Activate: %d\n", result);
 
-    wasm_val_t args_val[2] = { WASM_I32_VAL(21), WASM_I32_VAL(21) };
-    wasm_val_t results_val[1] = { WASM_INIT_VAL };
-    wasm_val_vec_t args = WASM_ARRAY_VEC(args_val);
-    wasm_val_vec_t results = WASM_ARRAY_VEC(results_val);
-
-    if (wasm_func_call(add_func, &args, &results)) {
-        printf("Call failed!\n");
-        return 1;
-    }
-
-    printf("Result: %d\n", results_val[0].of.i32);
+    result = deactivate(&exports);
+    printf("Deactivate: %d\n", result);
 
     wasm_extern_vec_delete(&exports);
     wasm_instance_delete(instance);
